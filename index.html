@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>UCR Interactive Map</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            text-align: center;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding-top: 20px;
+        }
+
+        h1 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            color: #FFD700;
+        }
+
+        .map-svg {
+            width: 95%;
+            max-width: 1600px;
+            border: 1px solid #444;
+            margin-top: 20px;
+            background-color: #1e1e1e;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .building-shape {
+            fill: #003da5;
+        stroke: rgba(255, 255, 255, 0.6);
+        stroke-width: 2px;
+    
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+
+        transform-box: fill-box;
+        transform-origin: center;
+        }
+
+        .building-shape:hover {
+            fill: #FFD700;
+            filter: drop-shadow(0 0 10px #FFD700);
+            transform: scale(1.02); 
+            transform-box: fill-box;
+            transform-origin: center;
+        }
+
+        .map-label {
+            fill: white;
+            font-weight: bold;
+            font-size: 14px;
+            pointer-events: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8); 
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); 
+            backdrop-filter: blur(5px); 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        #modal-box {
+            background: rgba(30, 30, 30, 0.85);
+            
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 400px;
+            max-width: 90%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        #close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+            transition: color 0.2s;
+        }
+
+        #close-btn:hover {
+            color: #ff4444;
+        }
+
+        #floor-plan-img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #444;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>UCR Interactive Map</h1>
+    <p style="color: #888;">Hover to highlight. Click for details.</p>
+
+<svg viewBox="0 0 1878 971" class="map-svg">
+    
+
+    <defs>
+        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+        </pattern>
+    </defs>
+    
+    <rect x="0" y="0" width="1878" height="971" fill="#1a1a1a"/> 
+    <rect x="0" y="0" width="1878" height="971" fill="url(#grid)"/>
+
+    <g transform="translate(910, 180)">
+    
+        <path 
+            id="bourns"
+            class="building-shape"
+            d="M115.5 79H7.5V121.5H26V139L31 139.5V151.5L210 153V142.5H216V79H128.5V37.5H132V45H159V37.5H181.5V10H158V0.5H132V10H109V0.5H82.5V10H79V0.5H53V10H49.5V0.5H23V10H0.5V37.5H25V45H49.5V37.5H53V45H77.5V37.5H82.5V45H109V37.5H115.5V79Z" 
+        />
+
+    </g>
+    <text x="1030" y="300" text-anchor="middle" class="map-label">Bourns</text>
+
+
+    <g transform="translate(1124, 180)">
+    
+        <path 
+            id="winston"
+            class="building-shape"
+            d="M10 124V69H23V79.5H74.5V38H82.5V34.5H66.5V40.5H39V34.5H36.5V40.5H10V34.5H0.5V7H10V0.5H36.5V7H39V0.5H66.5V11H68.5V7H95.5V16H97V12H113V21H126V34.5H121V38H130.5V79.5H116.5V82.5H156V109.5L151 118V121.5L139 128V131.5H126V142H98V138.5H95.5V154H14V124H10Z" 
+    />
+    </g>
+    <text x="1200" y="290" text-anchor="middle" class="map-label">Winston Chung</text>
+
+
+    <g transform="translate(750, 240)">
+    
+        <path 
+            id="bookstore"
+            class="building-shape"
+            d="M90 102.179V90.6785H0.5V54.6785L48.5 11.1785L46.5 8.17854L55 0.678537L66 11.1785V2.17854H107.5V34.1785C126.7 47.3785 115.5 61.0119 107.5 66.1785V102.179H90Z"
+    />
+    </g>
+    <text x="812" y="296" text-anchor="middle" class="map-label">Bookstore</text>
+
+
+<g transform="translate(738, 165)">
+    
+        <path 
+            id="lecturehall"
+            class="building-shape"
+            d="M81.5 50.5V0.5H0.5V43H4L5.5 57L81.5 50.5Z"
+    />
+    </g>
+    <text x="778" y="197" text-anchor="middle" class="map-label">Lecture Hall</text>
+
+
+<g transform="translate(665, 165)">
+    
+        <path 
+            id="skye"
+            class="building-shape"
+            d="M53 166.379H0.5V0.879341L61 36.8793L53 166.379Z"
+    />
+    </g>
+    <text x="693" y="250" text-anchor="middle" class="map-label">Skye</text>
+
+
+<g transform="translate(668, 17)">
+    
+        <path 
+            id="sci&eng"
+            class="building-shape"
+            d="M0.5 86V49.5H14.5V38.5H38.5V54H39.5V31H48.5V38.5H180.5V35H194.5V41H215.5V15.5H219.5L221.5 1.5H245.5L247.5 12.5H258L260.5 0.5H283.5L286 15.5H294.5L294 39.5H294.5V42L287 54.5H290V70.5H306.5V77.5H294V90.5H202V100.5H190.5V90.5H178.5V86H0.5Z"
+    />
+    </g>
+    <text x="825" y="83" text-anchor="middle" class="map-label">Science & Engineering</text>
+
+
+<g transform="translate(1239, 320)">
+    
+        <path 
+            id="sci&eng"
+            class="building-shape"
+            d="M131.012 0.5H25.5118V98.5H35.5118V112.5H0.51178L1.51178 155.5H139.512V113H130.512H67.5118V30.5H131.012V0.5Z"
+    />
+    </g>
+    <text x="1310" y="456" text-anchor="middle" class="map-label">Physics</text>
+
+
+
+<g transform="translate(1371, 348)">
+    
+        <path 
+            id="orbach"
+            class="building-shape"
+            d="M85.5 0.5H62.5V8.5H47.5V35.5H20.5V64.5H0.5V83.5H9.5V86.5H20.5V131H48.5V144.5H61.5V152H85.5V144.5H98.5V131H131V132.5H168V116.5H175V92.5H168V77.5H134.5C134.5 56.7 111.833 44.8333 100.5 41.5V7.5H85.5V0.5Z"
+    />
+    </g>
+    <text x="1457" y="450" text-anchor="middle" class="map-label">Orbach Library</text>
+
+
+<g transform="translate(1348, 500)">
+    
+        <path 
+            id="phys2000"
+            class="building-shape"
+            d="M0.5 35.5669V7.56694H18L21.5 0.56694L60.5 8.56694L59.5 43.0669L21.5 44.5669L17.5 37.5669H11.5V36.5669H3.5V35.5669H0.5Z"
+    />
+    </g>
+    <text x="1379" y="527" text-anchor="middle" class="map-label">Phys2000</text>
+
+<g transform="translate(1256, 571)">
+    
+        <path 
+            id="webber"
+            class="building-shape"
+            d="M66 1V1.5M66 1.5V35.5H53.5V124H15L14 30.5H0.5V0.5H66V1.5Z"
+    />
+    </g>
+    <text x="1289" y="592" text-anchor="middle" class="map-label">Webber</text>
+
+<g transform="translate(1338, 577)">
+    
+        <path 
+            id="boyce"
+            class="building-shape"
+            d="M46.5 0.5H29V12.5H15.5V17H8V29H0.5V41.5H8V95.5H0.5V108.5H8V121H14.5V126H28.5V138.5H46V126H62.5V121H79V108.5H87V95.5H79V41.5H87.5V29H79V17H54.5V12.5H46.5V0.5Z"
+    />
+    </g>
+    <text x="1380" y="647" text-anchor="middle" class="map-label">Boyce</text>
+
+<g transform="translate(1338, 577)">
+    
+        <path 
+            id="boyce"
+            class="building-shape"
+            d="M46.5 0.5H29V12.5H15.5V17H8V29H0.5V41.5H8V95.5H0.5V108.5H8V121H14.5V126H28.5V138.5H46V126H62.5V121H79V108.5H87V95.5H79V41.5H87.5V29H79V17H54.5V12.5H46.5V0.5Z"
+    />
+    </g>
+    <text x="1380" y="647" text-anchor="middle" class="map-label">Boyce</text>
+
+
+<g transform="translate(1433, 584)">
+    
+        <path 
+            id="scotty"
+            class="building-shape"
+            d="M10.1913 0.685211L0.691284 16.6852L16.6913 25.6852L26.1913 10.1852L10.1913 0.685211Z"
+    />
+    </g>
+
+<g transform="translate(1477, 538)">
+    
+        <path 
+            id="schoolofmedicine"
+            class="building-shape"
+            d="M77 0.5H34.5V43H0.5V58H34.5V94.5H77V58H88V43H77V0.5Z"
+    />
+    </g>
+    <text x="1530" y="590" text-anchor="middle" class="map-label">School of Medicine</text>
+
+<g transform="translate(477, 308)">
+    
+        <path 
+            id="Athletics"
+            class="building-shape"
+            d="M166.5 121H77V135H31V91H0.5V34.5H9.5V13H28.5V0.5H86V7.5H107V38H92V88.5H166.5V121Z" 
+    />
+    </g>
+    <text x="530" y="370" text-anchor="middle" class="map-label">Athletics</text>
+
+<g transform="translate(613, 444)">
+    
+        <path 
+            id="costo"
+            class="building-shape"
+            d="M35.5 105H0.5V0.5H35.5V105Z"
+    />
+    </g>
+
+
+<g transform="translate(527, 509)">
+    
+        <path 
+            id="hoss"
+            class="building-shape"
+            d="M63 0.5H52.5V3.5H0.5V38.5H63V0.5Z"
+    />
+    </g>
+    <text x="558" y="534" text-anchor="middle" class="map-label">HOSS</text>
+
+<g transform="translate(468, 473)">
+    
+        <path 
+            id="studentservices"
+            class="building-shape"
+            d="M0.5 0.5H110V39H59H0.5V0.5Z"
+    />
+    </g>
+    <text x="525" y="497" text-anchor="middle" class="map-label">Student Services</text>
+    
+<g transform="translate(342, 457)">
+    
+        <path 
+            id="studentsuccesscenter"
+            class="building-shape"
+            d="M107.5 26.5V50.5H94.5V69.5H82V90.5H0.5V0.5H104V26.5H107.5Z"
+    />
+    </g>
+    <text x="395" y="505" text-anchor="middle" class="map-label">SSC</text>
+
+<g transform="translate(358, 300)">
+    
+        <path 
+            id="intssouth"
+            class="building-shape"
+            d="M96 25V145.5H8.5L0.5 126.5V111.5H45.5V33H56.5V27H65V24.5H52.5V9H56.5V0.5H65V9H66V7H92C98.4 11 93.6667 16 90.5 18V25H96Z"
+    />
+    </g>
+    <text x="410" y="430" text-anchor="middle" class="map-label">INTS South</text>
+
+
+<g transform="translate(353, 240)">
+    
+        <path 
+            id="intsnorth"
+            class="building-shape"
+            d="M110.056 51.5L70.0555 50.5V59.5H62.0555V49L0.555534 40.5L4.55553 7.5L62.0555 17.5V7.5L73.5555 0.5H112.056L110.056 51.5Z" 
+    />
+    </g>
+    <text x="416" y="275" text-anchor="middle" class="map-label">INTS North</text>
+
+<g transform="translate(167, 228)">
+    
+        <path 
+            id="arts"
+            class="building-shape"
+            d="M127 18.5134L113.5 52.0134L84.5 43.5134L49.5 48.5134L40.5 121.513L44 129.013L84.5 93.0134L116.5 134.013L104 141.513L80 160.513L78 158.013L70.5 165.013L63 164.013L60.5 159.513H57L47 146.513L60.5 204.513L57 206.513L60.5 210.513L76.5 167.013L115.5 177.013L106.5 228.513L41.5 216.513L11.5 222.013C11.3333 188.347 11.1 121.113 11.5 121.513C11.9 121.913 7.66667 101.68 5.5 91.5134V74.5134H0.5V52.0134H2.5L5.5 12.5134L81.5 0.513433L116 12.5134L115 14.5134L127 18.5134Z" 
+    />
+    </g>
+    <text x="193" y="335" text-anchor="middle" class="map-label">Arts</text>
+
+
+<g transform="translate(158, 602)">
+    
+        <path 
+            id="hinderaker"
+            class="building-shape"
+            d="M51 0.5H0.5V66H39V50.5H87V72.5H117.5V0.5H87V14.5H51V0.5Z"
+    />
+    </g>
+    <text x="217" y="638" text-anchor="middle" class="map-label">Hinderaker</text>
+
+<g transform="translate(217, 710)">
+    
+        <path 
+            id="humanities"
+            class="building-shape"
+            d="M94.5 141.5H64.5L64 99H39.5L41 51H34V36H0.5V0.5H76.5V36H66V65.5H116.5V69.5H125L126 37H106.5V0.5H219V5.5H240V32.5H218V35.5H206.5V65.5H228.5L230 71H240V96.5H230L228.5 101.5H125V78.5H116.5V100L96 101.5L94.5 141.5Z"
+    />
+    </g>
+    <text x="380" y="740" text-anchor="middle" class="map-label">Humanities &</text>
+    <text x="380" y="760" text-anchor="middle" class="map-label">Social Sciences</text>
+
+<g transform="translate(314, 851)">
+    
+        <path 
+            id="stable"
+            class="building-shape"
+            d="M74 18.5V39.5H44V45.5H41.5V59.5H2.5V39.5H0.5V18.5H20V0.5H58V18.5H74Z"
+    />
+    </g>
+    <text x="352" y="885" text-anchor="middle" class="map-label">The Stable</text>
+
+<g transform="translate(371, 829)">
+    
+        <path 
+            id="barntheater"
+            class="building-shape"
+            d="M56.5 0.5H0.5V20.5H56.5V0.5Z"
+    />
+    </g>
+
+<g transform="translate(356, 869)">
+    
+        <path 
+            id="barn"
+            class="building-shape"
+            d="M71 0.5V70.5H0.5V28.5H42V0.5H71Z" 
+    />
+    </g>
+    <text x="390" y="917" text-anchor="middle" class="map-label">The Barn</text>
+
+
+<g transform="translate(489, 713)">
+    
+        <path 
+            id="sproul"
+            class="building-shape"
+            d="M93 0.5H14L13 121H46.5V141.5H0.5V167.5H103.5V142H58V121H90L93 0.5Z"
+    />
+    </g>
+    <text x="540" y="776" text-anchor="middle" class="map-label">Sproul</text>
+
+<g transform="translate(656, 695)">
+    
+        <path 
+            id="watkins1000"
+            class="building-shape"
+            d="M33 28.5V44.5H0.5V0.5H23V28.5H33Z"
+    />
+    </g>
+    <text x="669" y="720" text-anchor="middle" class="map-label">Watkins 1000</text>
+
+    <g transform="translate(612, 671)">
+    
+        <path 
+            id="watkins"
+            class="building-shape"
+            d="M128.5 238.5H0.5V198.5H35V122.5H1V86H44.5V69.5H77V86H128.5V121.5H66V198.5H128.5V238.5Z" 
+    />
+    </g>
+    <text x="676" y="780" text-anchor="middle" class="map-label">Watkins</text>
+
+<g transform="translate(612, 671)">
+    
+        <path 
+            id="belltower"
+            class="building-shape"
+            d="M203.5 0.5H190.5V13.5H203.5V0.5Z"
+    />
+    </g>
+    <text x="810" y="683" text-anchor="middle" class="map-label">Bell Tower</text>
+
+<g transform="translate(658, 357)">
+    
+        <path 
+            id="hub"
+            class="building-shape"
+            d="M67 0.506195L9 1.5062V20.0062H3L2 88.5062H0.5V241.506H37C51.4 240.306 57 228.673 58 223.006L60.5 190.006L103.5 173.006L97.5 160.506L86.5 165.006L67 117.506L71 103.006L75.5 89.5062L83 34.5062L67 20.0062L68.5 19.0062H72L73 18.0062L67 0.506195Z"
+    />
+    </g>
+    <text x="692" y="480" text-anchor="middle" class="map-label">The HUB</text>
+    <text x="633" y="497" text-anchor="middle" class="map-label">Costo Hall</text>
+
+<g transform="translate(754, 356)">
+    
+        <path 
+            id="Habit"
+            class="building-shape"
+            d="M70.5 47V0.5H0.5V92L70.5 47Z"
+    />
+    </g>
+    <text x="789" y="390" text-anchor="middle" class="map-label">Habit</text>
+
+<g transform="translate(825, 360)">
+    
+        <path 
+            id="subway"
+            class="building-shape"
+            d="M18 0.5H0.5V42L18 30V0.5Z"
+    />
+    </g>
+    <text x="835" y="380" text-anchor="middle" class="map-label">Subway</text>
+
+<g transform="translate(998, 521)">
+    
+        <path 
+            id="pierceannex"
+            class="building-shape"
+            d="M48 3V0.5H26V21H18.5V30H8V33.5H0.5V71H40.5V63.5H46V55H51.5V46.5L63.5 46L68 42.5V3H48Z"
+    />
+    </g>
+    <text x="1028" y="561" text-anchor="middle" class="map-label">Pierce Annex</text>
+
+<g transform="translate(896, 397)">
+    
+        <path 
+            id="pierce"
+            class="building-shape"
+            d="M149.5 123.5H127.5V122H124.5V119H74.5V152.5H67V168H95V162.5H101V186.5H97.5V191H0.5V166.5H32.5V115H7.5V75.5H44.5V67.5H32.5V7.5H48.5V0.5H61.5V7.5H69.5V67.5H59.5V75.5H149.5V90H169V99.5H149.5V118.5H167.5V122H149.5V123.5Z"
+    />
+    </g>
+    <text x="976" y="498" text-anchor="middle" class="map-label">Pierce</text>
+
+<g transform="translate(1066, 372)">
+    
+        <path 
+            id="geology"
+            class="building-shape"
+            d="M69.5 152V143H19.5V125H0.5V115.5H18V99H74V46.5H18V0.5H119V46.5H105V99H139V143H96.5V152H69.5Z"
+    />
+    </g>
+    <text x="1143" y="496" text-anchor="middle" class="map-label">Geology</text>
+
+<g transform="translate(1103, 524)">
+    
+        <path 
+            id="sciencelaboratories1"
+            class="building-shape"
+            d="M59 15.5V0.5H32.5V8.5H0.5V35.5H6V41.5H12V55H24V63.5L99.5 64.5V43H105.5V22H99.5V15.5H59Z"
+    />
+    </g>
+    <text x="1150" y="558" text-anchor="middle" class="map-label">Science Laboratories 1</text>
+
+
+<g transform="translate(858, 696)">
+    
+        <path 
+            id="rivera"
+            class="building-shape"
+            d="M83.5 0.5H37.5L36 62H0.5V93.5H33L30.5 246.5H126.5V105.5H105V86.5H97.5V58H127V21.5H83.5V0.5Z"
+    />
+    </g>
+    <text x="938" y="820" text-anchor="middle" class="map-label">Rivera Library</text>
+
+<g transform="translate(1008, 698)">
+    
+        <path 
+            id="lifescience1500"
+            class="building-shape"
+            d="M39 21.5V0.5H0.5V59H32V49H48V21.5H39Z"
+    />
+    </g>
+    
+
+<g transform="translate(1023, 719)">
+    
+        <path 
+            id="spieth"
+            class="building-shape"
+            d="M162.5 128.502H68.5V131.502H53.5V127.502H48.5V129.502L13.5 130.002V127.502H6.5V122.002H0.5V106.502H6.5V98.5017H13.5V96.0017H49V98.5017H52.5V88.0017H40V28.0017H33.5V0.50174L178.5 1.00174V40.0017H81.5V88.0017H67V98.5017H71V96.0017H163.5V98.5017H170V106.002H176V121.502H169.5V127.002H162.5V128.502Z"
+    />
+    </g>
+    <text x="1130" y="743" text-anchor="middle" class="map-label">Spieth Hall</text>
+    <text x="1028" y="735" text-anchor="middle" class="map-label">Life Science 1500</text>
+
+<g transform="translate(1004, 851)">
+    
+        <path 
+            id="lifescience"
+            class="building-shape"
+            d="M62.5 4.5H72.5V0.5H87.5V4.5H100V87H86.5V93.5H69V87H62.5C61.1667 84.8333 58.9 79.7 60.5 76.5V70H52.5V81H8.5V74.5H0.5V51H6.5V48.5H12.5V51H18V48.5H24.5V51H30V48.5H36.5V51H42V48.5H49V51H52.5V56.5H62.5V49.5H60V42.5H62.5H47.5V6.5H62.5V4.5Z" 
+    />
+    </g>
+    <text x="1058" y="919" text-anchor="middle" class="map-label">Life Science</text>
+
+<g transform="translate(1124, 751)">
+    
+        <path 
+            id="biosciences"
+            class="building-shape"
+            d="M60.5 184.5H5.5V170.5L0.5 158V137H17V127.5H33.5V118H58.5V121.5H62.5L64.5 106.5H78.5V103.5L100.5 104.5L97.5 143L90.5 149.5L94 153.5L68.5 178.5H60.5V184.5Z" 
+    />
+    </g>
+    <text x="1173" y="906" text-anchor="middle" class="map-label">Bio Sciences</text>
+
+<g transform="translate(1124, 751)">
+
+        <path 
+            id="batchelorhall"
+            class="building-shape"
+            d="M239.5 52.5H119V103.5H194.5V163.5H244.5V102H239.5V52.5Z"
+    />
+    </g>
+    <text x="1304" y="833" text-anchor="middle" class="map-label">Batchelor Hall</text>
+
+<g transform="translate(1124, 751)">
+
+        <path 
+            id="keenhall"
+            class="building-shape"
+            d="M239.5 0.5H195.5V49.5H239.5V0.5Z"
+    />
+    </g>
+    <text x="1340" y="779" text-anchor="middle" class="map-label">Keen Hall</text>
+
+<g transform="translate(1597, 415)">
+
+        <path 
+            id="chemicalsciences"
+            class="building-shape"
+            d="M154 89.0336H124V85.5336H116.5V62.0336H55.5V89.0336L49.5 97.5336H33.5V101.534H0.5V37.0336H15.5V29.0336H7.5L3.5 0.533615L30 2.03362V8.53362H35L164.5 2.03362L167 27.0336H159.5V43.5336H176V74.5336L169 83.0336H154V89.0336Z" 
+    />
+    </g>
+    <text x="1685" y="459" text-anchor="middle" class="map-label">Chemical Sciences</text>
+
+<g transform="translate(1437, 676)">
+
+        <path 
+            id="schoolofmedicine2"
+            class="building-shape"
+            d="M116.5 41H109.5V55.5H5.5V41H0.5V8.5H5.5V3.5H45V0.5H60V3.5H67.5V0.5H116.5V41Z" 
+    />
+    </g>
+    <text x="1493" y="707" text-anchor="middle" class="map-label">School of Medicine 2</text>
+    <text x="1447" y="600" text-anchor="middle" class="map-label">Scotty's</text>
+
+</svg>
+
+    <div id="modal-overlay" class="hidden">
+        <div id="modal-box">
+            <button id="close-btn">&times;</button>
+            <h2 id="modal-title">Building Name</h2>
+            <img id="floor-plan-img" src="" alt="Floor Plan">
+        </div>
+    </div>
+
+<script>
+    const modal = document.getElementById('modal-overlay');
+    const closeBtn = document.getElementById('close-btn');
+    const modalTitle = document.getElementById('modal-title');
+    const modalImage = document.getElementById('floor-plan-img');
+    const buildings = document.querySelectorAll('.building-shape');
+
+    const buildingData = {
+        'bourns': {
+            name: "Bourns Hall",
+            floorPlan: "https://placehold.co/400x300/333/FFF?text=Bourns+Hall+Blueprint"
+        },
+        'winston': {
+            name: "Winston Chung Hall",
+            floorPlan: "https://placehold.co/400x300/333/FFF?text=WCH+Blueprint"
+        }
+    };
+
+    buildings.forEach(building => {
+        building.addEventListener('click', function() {
+            const buildingId = this.id;
+            const info = buildingData[buildingId];
+
+            if (info) {
+                modalTitle.innerText = info.name;
+                modalImage.src = info.floorPlan;
+                modal.classList.remove('hidden');
+            }
+        });
+    });
+
+    closeBtn.addEventListener('click', () => modal.classList.add('hidden'));
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.classList.add('hidden');
+        }
+    });
+</script>
+
+</body>
+</html>
